@@ -1,0 +1,35 @@
+@font-face {font-family: "fontFamily";
+  src: url('iconfont.eot?t=1607444811735'); /* IE9 */
+  src: url('iconfont.eot?t=1607444811735#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAQ8AAsAAAAACMQAAAPuAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDBgqFEIQpATYCJAMMCwgABCAFhQUHORuKB1GULkqS7MeB3fBVBEKpGGNZOimZRB6EcIR/KLnEw9Oy+f7M7HLMHbW7VjS2eFSpki4UCgkKpI9MhItO19FcremmREJvdcIyqgCgL/d7+DT3GxSyIFtlqwyBrOt8dvk74cbeyJoL2ZmVOlKLd1WgKp/8437qonAiD8AXGRTdoNP0gXSf/xvIBlYgE/Q5gN0t+zqBalFF6WDr4AJmFPq8QDxZLWAmIVcqokNHaAu2FvGh0Ulv6Rvw7n0//mkFStJk+tKjm80IVn4y/00zlnyWuHRQGMNpwe4iYxMoxHWh/tR44No0rsr8iergVhHSUNb///HoCrc1/vBIgmjp/B6JX3UnfjYWPRJMg3nUjIt7v8UE8AXE3ADDGDYZvVSjp7MsCp5gtHDdLr38uHx7vX59uXp+EgQ3k+qxYYIe5tZmsXcRhgeUfDvpNIsHVi6rjZMURRA4DntPJ7tUh4iLGfI8uAbaEdWN2lXMk+w2jcFFOHuKbxHUDqlWPw/8TcEgDzZUpT5SqjZcqTJYkrhPyvVQznuEbCcOZy8l264MF25k2q/D2QFJQhwPQNgBRdEIIjCGphoQyN68Xrkqyt5xYzx39b8YYaJjGN3uY8IwJno01EDg3z92Zrm/f2mnmRji4MGMpvPa2HxALBLCQwIfkUoZE7vmu0Ohnru/WIC8igdfsL2R5tOH5crVhEZ79LGD3yG4kC0dqZ0PpFLHL+2NeENUPALk/ET1PVD4ge9a9NmngNtNxknSQbCdxbnlLbKGvU24NQD/eXmt6dAx8W3eDyhtHLKciucIO+Ns/X/+/977v3eG3Poj/7Ov/PykpCzhlZdi+XNzmJNzeJM8+pBXDQMwLQ2CQJCeBiCmhjEkVlYm2hwGULARda8oPysvD3dRY5czkmNXa2NAMLqF4Vtq/xt+w63oV3Ikj8VX1ACOAr7/P3b3tnyWFPkFHYnGjHfPaFhXFJauyEWiW3TNm70avrMyVRF447Ew6re7cQJE2lA5BiDpswRZtYwu+F1odO1BqzqEasPx7q4xI+Oi9GPdPQFh3BMkg75CNu4DXfD/0JgMAK3xEIHqOMpHdi1Had0PJJgi7AzRyixVpozn7Ne2RGLj4RnpbixCKi945YpCYbMUm7VGjnebUgpDrSh6usWsUIUswa3q2yiOM8xD5khyzTDn7XpdFd2pJrME5uwLiMBIBHUMIUvKpJRjZnPBKVuEhBUbOkO0LtdaCJUls4FXSFCAVjw4aqppNEJv89OGRZe2qtCjtTCmIBsYZBIIxhBcUkJjGZQXT3KIxGpMB0eurW40U035tU0Lk3vdBpV+do4UOYrOsxF9kY7sRGGdBQAAAA==') format('woff2'),
+  url('iconfont.woff?t=1607444811735') format('woff'),
+  url('iconfont.ttf?t=1607444811735') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('iconfont.svg?t=1607444811735#fontFamily') format('svg'); /* iOS 4.1- */
+}
+
+
+
+.fontFamily {
+  font-family: "fontFamily" !important;
+  font-size: 20px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tests-zhawanzi:before {
+  content: "\e618";
+}
+
+.icon-tests-siji:before {
+  content: "\e605";
+}
+
+[class*=" icon-tests-"] {
+  font-family:"fontFamily" !important;
+  /* 以下内容参照第三方图标库本身的规则 */
+  font-size: 20px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
