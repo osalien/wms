@@ -27,6 +27,8 @@
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
+      row-key="typeId"
+      :tree-props="{children: 'wzTypeList'}">
       border
       fit
       highlight-current-row
