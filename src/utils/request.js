@@ -66,7 +66,6 @@ service.interceptors.response.use(
           })
         })
       }
-    debugger
       return Promise.reject(new Error(res.msg || 'Error'))
     } else {
       return res

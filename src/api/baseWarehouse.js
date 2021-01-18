@@ -16,6 +16,14 @@ export function add(params) {
   })
 }
 
+export function update(params) {
+  return request({
+    url: '/ckWarehouse/update',
+    method: 'post',
+    data: params
+  })
+}
+
 export function rolesSelect(params) {
   return request({
     url: '/sysRole/queryAllByLimit',

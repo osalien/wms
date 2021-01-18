@@ -9,7 +9,15 @@ export function getLists(params) {
 }
 export function add(params) {
   return request({
-    url: '/ckAllocation/c',
+    url: '/ckAllocation/insert',
+    method: 'post',
+    data: params
+  })
+}
+
+export function update(params) {
+  return request({
+    url: '/ckAllocation/update',
     method: 'post',
     data: params
   })

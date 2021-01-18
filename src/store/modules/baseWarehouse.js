@@ -1,4 +1,4 @@
-import { getLists, add, rolesSelect } from '@/api/baseWarehouse'
+import { getLists, add, rolesSelect,update } from '@/api/baseWarehouse'
 
 const state = {
 
@@ -23,6 +23,16 @@ const actions = {
   add({ commit }, params) {
     return new Promise((resolve, reject) => {
       add(params).then(result => {
+        resolve(result)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  update({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      update(params).then(result => {
         resolve(result)
       }).catch(error => {
         reject(error)

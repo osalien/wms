@@ -208,7 +208,9 @@ export default {
             .then((res) => {
               this.loading = false
               if(res.msg=='登录成功'){
+                debugger
                 Message.success(res.msg)
+                localStorage.setItem('user',JSON.stringify(res.data))
                 // 储存登录信息
                 this.setUserInfo()
                 this.$router.push({ path: this.redirect || '/', query: this.otherQuery })

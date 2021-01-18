@@ -1,4 +1,4 @@
-import { getLists, add } from '@/api/supplierManagement'
+import { getLists, add,update } from '@/api/supplierManagement'
 
 const state = {
 
@@ -13,6 +13,14 @@ const actions = {
   getList({ commit }, params) {
     return new Promise((resolve, reject) => {
       getLists(params).then(result => {
+        resolve(result)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },update({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      update(params).then(result => {
         resolve(result)
       }).catch(error => {
         reject(error)

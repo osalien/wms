@@ -149,10 +149,10 @@
           <el-input v-model="temp.storageCoding" />
         </el-form-item>
         <el-form-item label="层数" prop="timestamp">
-          <el-input v-model="temp.storagePlies" />
+          <el-input type="number" v-model="temp.storagePlies" />
         </el-form-item>
         <el-form-item label="货位数/层" prop="title">
-          <el-input v-model="temp.storageTrays" />
+          <el-input type="number" v-model="temp.storageTrays" />
         </el-form-item>
         <el-form-item label="型号" prop="timestamp">
           <el-input v-model="temp.storageType" />
@@ -161,7 +161,7 @@
           <el-input v-model="temp.storageSize" />
         </el-form-item>
         <el-form-item label="最大承载重量">
-          <el-input v-model="temp.storageWeight" />
+          <el-input type="number" v-model="temp.storageWeight" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="temp.storageElse" />
@@ -254,21 +254,21 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        areaId: 0,
-        createBy: '',
+        areaId: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
         storageCoding: '',
         storageDelete: 0,
         storageElse: '',
         storageId: 0,
         storageName: '',
-        storagePlies: 0,
+        storagePlies: '',
         storageSize: '',
         storageState: 0,
-        storageTrays: 0,
+        storageTrays: '',
         storageType: '',
-        storageWeight: 0,
-        updateBy: '',
+        storageWeight: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         warehouseId: ''
       },
@@ -352,21 +352,21 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        areaId: 0,
-        createBy: '',
+        areaId: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
         storageCoding: '',
         storageDelete: 0,
         storageElse: '',
         storageId: 0,
         storageName: '',
-        storagePlies: 0,
+        storagePlies: '',
         storageSize: '',
         storageState: 0,
-        storageTrays: 0,
+        storageTrays: '',
         storageType: '',
-        storageWeight: 0,
-        updateBy: '',
+        storageWeight: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         warehouseId: ''
       }
@@ -393,7 +393,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.storageState = this.temp.storageState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -403,18 +404,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('shelfManagement/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

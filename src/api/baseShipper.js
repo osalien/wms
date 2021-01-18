@@ -16,6 +16,14 @@ export function addckowner(params) {
   })
 }
 
+export function update(params) {
+  return request({
+    url: '/ckOwner/update',
+    method: 'post',
+    data: params
+  })
+}
+
 export function addUserName(params) {
   return request({
     url: '/sysUser/queryAllByLimit',

@@ -9,10 +9,16 @@
         @keyup.enter.native="handleFilter">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
-      <el-select v-model="listQuery.status" placeholder="选择物资类型" clearable class="filter-item" style="width: 130px;margin-left: 15px">
-        <el-option v-for="item in goodShelfOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-      </el-select>
-      <el-select v-model="listQuery.typeId" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
+<!--      <el-select v-model="listQuery.status" placeholder="选择物资类型" clearable class="filter-item" style="width: 130px;margin-left: 15px">-->
+<!--        <el-option v-for="item in goodShelfOptions" :key="item.key" :label="item.display_name" :value="item.key" />-->
+<!--      </el-select>-->
+      <select-tree style="width:150px;display: inline-block;vertical-align: middle;margin-bottom: 10px;margin-left: 15px;" :props="props"
+                   :options="treeData"
+                   :value="valueId"
+                   :clearable="isClearable"
+                   :accordion="isAccordion"
+                   @getValue="getValue($event)"></select-tree>
+      <el-select v-model="listQuery.wzState" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
         <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="success" icon="el-icon-search" @click="handleFilter" style="margin-left: 15px">
@@ -109,9 +115,15 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="1000px">
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="80px" >
         <el-form-item label="物资类型" prop="type" >
-          <el-select v-model="temp.typeId" class="filter-item" placeholder="选择仓库" style="width:185px">
-            <el-option v-for="item in selectTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
+<!--          <el-select v-model="temp.typeId" class="filter-item" placeholder="选择仓库" style="width:185px">-->
+<!--            <el-option v-for="item in selectTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />-->
+<!--          </el-select>-->
+          <select-tree style="width:185px;display: inline-block;vertical-align: middle;margin-bottom: 10px;" :props="props"
+                       :options="treeData"
+                       :value="valueId"
+                       :clearable="isClearable"
+                       :accordion="isAccordion"
+                       @getValue="getValueAdd($event)"></select-tree>
         </el-form-item>
         <el-form-item label="状态" style="width: 50%">
           <el-radio v-model="temp.wzState" label="1">激活</el-radio>
@@ -187,6 +199,7 @@ import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import SelectTree from '@/components/SelectTree'
 
 const calendarStatusOptions = [
   { key: '0', display_name: '未激活' },
@@ -205,7 +218,7 @@ const calendarTypeKeyValue = calendarStatusOptions.reduce((acc, cur) => {
 
 export default {
   name: 'goodsMangement',
-  components: { Pagination },
+  components: { Pagination,SelectTree },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -240,12 +253,12 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        createBy: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
         expirationDate: 0,
         price: '',
         typeId: '',
-        updateBy: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         wzBar: '',
         wzBelow: 0,
@@ -270,7 +283,15 @@ export default {
         // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         // title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      treeData: [],
+      isClearable: true,
+      valueId: null,
+      props: {
+        value: 'typeId',
+        label: 'typeName',
+        children: 'wzTypeList'
+      },
     }
   },
   created() {
@@ -281,6 +302,12 @@ export default {
     this.getList()
   },
   methods: {
+    getValue (value) {
+      this.listQuery.typeId = value
+    },
+    getValueAdd (value) {
+      this.temp.typeId = value
+    },
     getList() {
       this.listLoading = true
       this.$store.dispatch('goodsManagement/getList', this.listQuery).then((result) => {
@@ -302,10 +329,11 @@ export default {
     selectType() {
       this.$store.dispatch('typeManagement/getList', this.listQuery).then((result) => {
         // eslint-disable-next-line no-unused-vars
-        var warehouse = result.data
-        for (let i = 0; i < warehouse.length; i++) {
-          this.selectTypeOptions.push({ key: warehouse[i].typeId, display_name: warehouse[i].typeName })
-        }
+        var warehouse = result.data //wzTypeList
+        // for (let i = 0; i < warehouse.length; i++) {
+        //   this.selectTypeOptions.push({ key: warehouse[i].typeId, display_name: warehouse[i].typeName })
+        // }
+        this.treeData = warehouse
         this.listLoading = false
         console.log(result.仓库)
       })
@@ -337,12 +365,12 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        createBy: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
         expirationDate: 0,
         price: '',
         typeId: '',
-        updateBy: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         wzBar: '',
         wzBelow: 0,
@@ -377,7 +405,9 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.wzState = this.temp.wzState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
+      this.valueId = this.temp.typeId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -387,18 +417,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('goodsManagement/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

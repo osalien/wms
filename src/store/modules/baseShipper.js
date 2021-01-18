@@ -1,4 +1,4 @@
-import { getLists,addckowner,addUserName,addUserPhone } from '@/api/baseShipper'
+import { getLists,addckowner,addUserName,addUserPhone,update } from '@/api/baseShipper'
 
 const state = {
 
@@ -22,6 +22,15 @@ const actions = {
   addckowners({ commit }, params) {
     return new Promise((resolve, reject) => {
       addckowner(params).then(result => {
+        resolve(result)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  update({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      update(params).then(result => {
         resolve(result)
       }).catch(error => {
         reject(error)

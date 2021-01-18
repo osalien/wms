@@ -14,3 +14,11 @@ export function add(params) {
     data: params
   })
 }
+
+export function update(params) {
+  return request({
+    url: '/ckStorage/update',
+    method: 'post',
+    data: params
+  })
+}

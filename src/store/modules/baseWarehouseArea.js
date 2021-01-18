@@ -1,4 +1,4 @@
-import { getLists, add } from '@/api/baseWarehouseArea'
+import { getLists, add,update } from '@/api/baseWarehouseArea'
 
 const state = {
 
@@ -27,7 +27,16 @@ const actions = {
         reject(error)
       })
     })
-  }
+  },
+  update({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      update(params).then(result => {
+        resolve(result)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
 }
 
 export default {

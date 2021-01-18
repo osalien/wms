@@ -13,7 +13,7 @@
         <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-select v-model="listQuery.warehouseName" placeholder="选择仓库" clearable class="filter-item" style="width: 130px;margin-left: 15px">
-        <el-option v-for="item in selectOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+        <el-option v-for="item in selectOptions" :key="item.key" :label="item.display_name" :value="item.display_name" />
       </el-select>
       <el-button v-waves class="filter-item" type="success" icon="el-icon-search" @click="handleFilter" style="margin-left: 15px">
         搜索
@@ -99,8 +99,8 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="80px" >
         <el-form-item label="仓库" prop="type" >
-          <el-select v-model="temp.warehouseName" class="filter-item" placeholder="选择仓库" style="width:185px">
-            <el-option v-for="item in selectOptions" :key="item.key" :label="item.display_name" :value="item.display_name" />
+          <el-select v-model="temp.warehouseId" class="filter-item" placeholder="选择仓库" style="width:185px">
+            <el-option v-for="item in selectOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" >
@@ -205,9 +205,9 @@ export default {
         areaName: '',
         areaState: 0,
         areaUse: 0,
-        createBy: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
-        updateBy: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         warehouseId: '',
         warehouseState: 1
@@ -287,9 +287,9 @@ export default {
         areaName: '',
         areaState: 0,
         areaUse: 0,
-        createBy: '',
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
         createTime: '',
-        updateBy: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
         updateTime: '',
         warehouseId: '',
         warehouseState: 1
@@ -317,7 +317,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.areaState = this.temp.areaState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -327,18 +328,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('baseWarehouseArea/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

@@ -215,7 +215,7 @@ export default {
         timestamp: new Date(),
         title: '',
         type: '',
-        status: 'published'
+        status: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -277,7 +277,7 @@ export default {
         remark: '',
         timestamp: new Date(),
         title: '',
-        status: 'published',
+        status: '',
         type: ''
       }
     },
@@ -303,7 +303,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.status = this.temp.status.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -313,18 +314,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('baseWarehouse/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

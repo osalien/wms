@@ -9,12 +9,17 @@
         @keyup.enter.native="handleFilter">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
+      <el-select v-model="listQuery.storageId" placeholder="选择货架" clearable class="filter-item" style="width: 130px;margin-left: 15px">
+        <el-option v-for="item in materialOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+      </el-select>
+      <el-select v-model="listQuery.allocationUse" placeholder="是否有库存" clearable class="filter-item" style="width: 130px;margin-left: 15px">
+        <el-option key="0" label="是" value="0" />
+        <el-option key="1" label="否" value="1" />
+      </el-select>
       <el-select v-model="listQuery.allocationState" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
         <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
-      <el-select v-model="listQuery.storageId" placeholder="选择物资类型" clearable class="filter-item" style="width: 130px;margin-left: 15px">
-        <el-option v-for="item in materialOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-      </el-select>
+
       <el-button v-waves class="filter-item" type="success" icon="el-icon-search" @click="handleFilter" style="margin-left: 15px">
         搜索
       </el-button>
@@ -213,7 +218,8 @@ export default {
         timestamp: new Date(),
         title: '',
         type: '',
-        status: 'published'
+        status: 'published',
+        allocationState:''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -247,10 +253,10 @@ export default {
     },
     selectType() {
       this.listLoading = true
-      this.$store.dispatch('typeManagement/getList', this.listQuery).then((result) => {
-        var type = result.data
+      this.$store.dispatch('shelfManagement/getList', this.listQuery).then((result) => {
+        var type = result.仓库货架.list
         for (let i = 0; i < type.length; i++) {
-          this.materialOptions.push({ key: type[i].typeId, display_name: type[i].typeName })
+          this.materialOptions.push({ key: type[i].storageId, display_name: type[i].storageName })
         }
         this.listLoading = false
       })
@@ -288,7 +294,8 @@ export default {
         timestamp: new Date(),
         title: '',
         status: 'published',
-        type: ''
+        type: '',
+        allocationState:''
       }
     },
     handleCreate() {
@@ -313,7 +320,8 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.allocationState = this.temp.allocationState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -323,18 +331,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('goodsLocation/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

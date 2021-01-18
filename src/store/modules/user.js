@@ -128,6 +128,7 @@ const actions = {
       }
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      localStorage.clear();
       removeToken()
       resetRouter()
 
