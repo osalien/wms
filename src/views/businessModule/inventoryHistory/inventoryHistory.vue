@@ -50,92 +50,92 @@
     >
       <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span>{{ row.historyId }}</span>
         </template>
       </el-table-column>
       <el-table-column label="业务类型"  align="center" >
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.receiptsState==0?"入库":"出库" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="单号"  align="center"   sortable="custom" width="210px" >
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.receiptsNumber }}</span>
         </template>
       </el-table-column>
       <el-table-column label="仓库"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.warehouseName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="仓库区域"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.areaName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="货主"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.ownerName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="物资" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.wzName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="供应商"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.supplierName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="波次"  align="center" sortable="custom" width="200px">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.receiptsNumber }}</span>
         </template>
       </el-table-column>
       <el-table-column label="单据"  align="center" sortable="custom">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.receiptsNumber }}</span>
         </template>
       </el-table-column>
       <el-table-column label="货位号"  align="center" sortable="custom" width="200px">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.allocationCoding }}</span>
         </template>
       </el-table-column>
       <el-table-column label="已报废"  align="center" sortable="custom">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.num }}</span>
         </template>
       </el-table-column>
       <el-table-column label="备注"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.historyElse }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态"  align="center" sortable="custom">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.receiptsState==0?"没验收":(row.receiptsState==1?"验收":"拒绝") }}</span>
         </template>
       </el-table-column>
       <el-table-column label="报废人"  align="center" sortable="custom">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.updatedBy }}</span>
         </template>
       </el-table-column>
       <el-table-column label="报废日期"  align="center"  sortable="custom" width="200px">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.updatedTime }}</span>
         </template>
       </el-table-column>
       <el-table-column label="托盘号"  align="center"  sortable="custom">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ }}</span>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
@@ -191,8 +191,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '激活' },
-  { key: '1', display_name: '禁用' }
+  { key: '1', display_name: '激活' },
+  { key: '0', display_name: '禁用' }
 ]
 const discardOptions = [
   { key: '0', display_name: '过期报废' },
@@ -253,7 +253,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         importance: undefined,
         name: undefined,
         status: undefined
@@ -296,19 +296,47 @@ export default {
     }
   },
   created() {
+    // this.goodShelfOptions = []
+    // this.selectTypeOptions = []
+    // this.selectGoodShelf()
+    // this.selectType()
     this.getList()
   },
   methods: {
+    getValue (value) {
+      this.listQuery.typeId = value
+    },
+    getValueAdd (value) {
+      this.temp.typeId = value
+    },
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      this.$store.dispatch('inventoryHistory/getList', this.listQuery).then((result) => {
+        this.list = result.库存历史报表.list
+        this.total = result.库存历史报表.total
+        this.listLoading = false
+      })
+    },
+    selectGoodShelf() {
+      this.$store.dispatch('shelfManagement/getList', this.listQuery).then((result) => {
+        var select = result.仓库货架.list
+        for (let i = 0; i < select.length; i++) {
+          this.goodShelfOptions.push({ key: select[i].storageId, display_name: select[i].storageName })
+        }
+        this.listLoading = false
+        console.log(result.仓库)
+      })
+    },
+    selectType() {
+      this.$store.dispatch('typeManagement/getList', this.listQuery).then((result) => {
+        // eslint-disable-next-line no-unused-vars
+        var warehouse = result.data //wzTypeList
+        // for (let i = 0; i < warehouse.length; i++) {
+        //   this.selectTypeOptions.push({ key: warehouse[i].typeId, display_name: warehouse[i].typeName })
+        // }
+        this.treeData = warehouse
+        this.listLoading = false
+        console.log(result.仓库)
       })
     },
     handleFilter() {
@@ -338,13 +366,22 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
+        createTime: '',
+        expirationDate: 0,
+        price: '',
+        typeId: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
+        updateTime: '',
+        wzBar: '',
+        wzBelow: 0,
+        wzCoding: '',
+        wzDelete: 0,
+        wzElse: '',
+        wzId: 0,
+        wzName: '',
+        wzOn: 0,
+        wzState: 0
       }
     },
     handleCreate() {
@@ -358,24 +395,20 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          this.listLoading = true
+          this.$store.dispatch('goodsManagement/add', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.wzState = this.temp.wzState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
+      this.valueId = this.temp.typeId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -385,18 +418,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('goodsManagement/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

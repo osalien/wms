@@ -1,4 +1,4 @@
-import { getLists,add,update,queryById } from '@/api/goodsLocation'
+import { getLists,add,update,selectOne } from '@/api/outWarehouseManagement'
 
 const state = {
 
@@ -37,9 +37,9 @@ const actions = {
       })
     })
   },
-  queryById({ commit }, params) {
+  selectOne({ commit }, params) {
     return new Promise((resolve, reject) => {
-      queryById(params).then(result => {
+      selectOne(params).then(result => {
         resolve(result)
       }).catch(error => {
         reject(error)

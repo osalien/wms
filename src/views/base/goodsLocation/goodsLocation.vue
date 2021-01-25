@@ -80,7 +80,7 @@
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.allocationState }}</span>
+          <span>{{ row.allocationState==0?"禁用":"已激活" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -101,39 +101,39 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="Type" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="650px">
+      <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="100px" >
+        <el-form-item label="仓库" prop="warehouseName">
+          <el-input v-model="temp.storageId" disabled/>
         </el-form-item>
-        <el-form-item label="Date" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
+        <el-form-item label="仓库区域" prop="warehouseName">
+          <el-input v-model="temp.areaId" disabled/>
         </el-form-item>
-        <el-form-item label="Title" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="货架" prop="warehouseName">
+          <el-input v-model="temp.allocationName" disabled/>
         </el-form-item>
-        <el-form-item label="Status">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
+        <el-form-item label="状态">
+          <el-radio v-model="temp.allocationState" label="1">激活</el-radio>
+          <el-radio v-model="temp.allocationState"  label="0">禁用</el-radio>
         </el-form-item>
-        <el-form-item label="Imp">
-          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
+        <el-form-item label="货位号" prop="warehouseName">
+          <el-input v-model="temp.allocationNum" disabled/>
         </el-form-item>
-        <el-form-item label="Remark">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+        <el-form-item label="排序号" prop="warehouseCoding">
+          <el-input v-model="temp.warehouseCoding" />
+        </el-form-item>
+        <el-form-item label="备注" prop="warehousePlace">
+          <el-input v-model="temp.warehousePlace" style="width:440px"/>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          Cancel
+      <div slot="footer" class="dialog-footer" align="center">
+        <el-button @click="dialogFormVisible = false" >
+          取消
         </el-button>
         <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+          保存
         </el-button>
       </div>
     </el-dialog>
@@ -157,8 +157,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination/index' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '激活' },
-  { key: '1', display_name: '禁用' }
+  { key: '1', display_name: '激活' },
+  { key: '0', display_name: '禁用' }
 ]
 
 const materialOptions = [
@@ -199,7 +199,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         allocationName: '',
         storageId: '',
         allocationUse: '',
@@ -247,6 +247,7 @@ export default {
       this.listLoading = true
       this.$store.dispatch('goodsLocation/getList', this.listQuery).then((result) => {
         this.list = result.货位.list
+        this.total = result.货位.total
         this.listLoading = false
         console.log(result.货位)
       })
@@ -320,12 +321,15 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.allocationState = this.temp.allocationState.toString()
-      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+      this.$store.dispatch('goodsLocation/queryById', {"id":this.temp.allocationId}).then((result) => {
+        this.temp = result.data
+        this.temp.allocationState = this.temp.allocationState.toString()
+        this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
+        })
       })
     },
     updateData() {

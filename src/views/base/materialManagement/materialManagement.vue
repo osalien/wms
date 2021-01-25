@@ -78,7 +78,7 @@
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.author==0?"禁用":"已激活" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -155,8 +155,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '激活' },
-  { key: '1', display_name: '禁用' }
+  { key: '1', display_name: '激活' },
+  { key: '0', display_name: '禁用' }
 ]
 
 const materialOptions = [
@@ -197,7 +197,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         importance: undefined,
         name: undefined,
         status: undefined
@@ -241,6 +241,7 @@ export default {
       this.listLoading = true
       this.$store.dispatch('materialManagement/getList', this.listQuery).then((result) => {
         this.list = result.仓库货架.list
+        this.total = result.仓库货架.total
         this.listLoading = false
         console.log(result.仓库货架)
       })

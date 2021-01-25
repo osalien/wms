@@ -57,7 +57,7 @@
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.typeState }}</span>
+          <span>{{ row.typeState==0?"禁用":"已激活" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -78,7 +78,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="550px">
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="100px" >
@@ -94,8 +94,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态" >
-          <el-radio v-model="temp.typeState" label="0">激活</el-radio>
-          <el-radio v-model="temp.typeState" label="1">未激活</el-radio>
+          <el-radio v-model="temp.typeState" label="1">激活</el-radio>
+          <el-radio v-model="temp.typeState" label="0">禁用</el-radio>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="temp.typeElse" />
@@ -130,8 +130,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '激活' },
-  { key: '1', display_name: '未激活' }
+  { key: '1', display_name: '激活' },
+  { key: '0', display_name: '禁用' }
 ]
 
 
@@ -173,7 +173,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         importance: undefined,
         name: undefined,
         typeState: undefined

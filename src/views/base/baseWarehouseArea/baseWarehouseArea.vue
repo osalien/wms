@@ -73,7 +73,7 @@
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.areaState}}</span>
+          <span>{{ row.areaState==0?"禁用":"已激活"}}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -94,7 +94,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" >
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="80px" >
@@ -105,7 +105,7 @@
         </el-form-item>
         <el-form-item label="状态" >
           <el-radio v-model="temp.areaState" label="1">激活</el-radio>
-          <el-radio v-model="temp.areaState" label="2">禁用</el-radio>
+          <el-radio v-model="temp.areaState" label="0">禁用</el-radio>
         </el-form-item>
         <el-form-item label="名称" prop="timestamp" style="width:100%">
           <el-input v-model="temp.areaName" />
@@ -146,8 +146,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '未激活' },
-  { key: '1', display_name: '已激活' }
+  { key: '0', display_name: '禁用' },
+  { key: '1', display_name: '激活' }
 ]
 const selectOptions = [
   // { key: '0', display_name: '仓库1' },
@@ -186,7 +186,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         areaName: '',
         warehouseName: '',
         areaState: ''
@@ -238,6 +238,7 @@ export default {
       this.listLoading = true
       this.$store.dispatch('baseWarehouseArea/getList', this.listQuery).then((result) => {
         this.list = result.仓库区域.list
+        this.total = result.仓库区域.total
         this.listLoading = false
         console.log(result.仓库区域)
       })

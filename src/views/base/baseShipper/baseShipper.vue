@@ -65,7 +65,7 @@
 <!--      </el-table-column>-->
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.ownerState }}</span>
+          <span>{{ row.ownerState==0?"禁用":"已激活" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -86,7 +86,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form  ref="dataForm" :rules="rules" :model="ckOwner" :inline="true"  label-position="right" label-width="80px" >
@@ -97,8 +97,8 @@
           <el-input v-model="ckOwner.ownerCoding" />
         </el-form-item>
         <el-form-item label="状态" style="width: 100%" >
-          <el-radio v-model="ckOwner.ownerState" label="1">已激活</el-radio>
-          <el-radio v-model="ckOwner.ownerState" label="0">未激活</el-radio>
+          <el-radio v-model="ckOwner.ownerState" label="1">激活</el-radio>
+          <el-radio v-model="ckOwner.ownerState" label="0">禁用</el-radio>
         </el-form-item>
         <el-form-item label="联系人">
           <el-select  v-model="ckOwner.userName" class="filter-item" placeholder="联系人搜索" style="width:185px"  prop="userName"   @change="handleChangePhone">
@@ -141,7 +141,7 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '未激活' },
+  { key: '0', display_name: '禁用' },
   { key: '1', display_name: '激活' }
 ]
 
@@ -176,7 +176,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         ownerName: '',
         ownerState: '',
         // 后端没接收这个字段
@@ -233,6 +233,7 @@ export default {
       this.listLoading = true
       this.$store.dispatch('baseShipper/getList', this.listQuery).then((result) => {
         this.list = result.货主.list
+        this.total = result.货主.total
         this.listLoading = false
         console.log(result.货主)
       })

@@ -1,4 +1,4 @@
-import { getLists,add,update,queryById } from '@/api/goodsLocation'
+import { getLists,add,update,queryById } from '@/api/inventoryManagement'
 
 const state = {
 

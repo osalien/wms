@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export function getLists(params) {
   return request({
-    url: '/ckAllocation/ckAllocationVoList',
+    url: '/ckIn/selectCkInVo',
     method: 'get',
     params: params
   })
 }
 export function add(params) {
   return request({
-    url: '/ckAllocation/insert',
+    url: '/ckIn/insert',
     method: 'post',
     data: params
   })
@@ -17,14 +17,14 @@ export function add(params) {
 
 export function update(params) {
   return request({
-    url: '/ckAllocation/update',
+    url: '/ckIn/update',
     method: 'post',
     data: params
   })
 }
-export function queryById(params) {
+export function selectOne(params) {
   return request({
-    url: '/ckAllocation/queryById',
+    url: '/ckIn/selectOne',
     method: 'get',
     params: params
   })

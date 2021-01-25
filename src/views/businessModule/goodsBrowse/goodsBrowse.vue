@@ -9,8 +9,8 @@
         @keyup.enter.native="handleFilter">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
-      <el-select v-model="listQuery.status" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
-        <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+      <el-select v-model="listQuery.allocationId" placeholder="选择货架" clearable class="filter-item" style="width: 130px;margin-left: 15px">
+        <el-option v-for="item in goodsLocationOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="success" icon="el-icon-search" @click="handleFilter" style="margin-left: 15px">
         搜索
@@ -96,7 +96,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
@@ -152,8 +152,8 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '激活' },
-  { key: '1', display_name: '禁用' }
+  { key: '1', display_name: '激活' },
+  { key: '0', display_name: '禁用' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -187,55 +187,95 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
-        importance: undefined,
-        name: undefined,
-        status: undefined
+        pageSize: 10,
+        wzName: '',
+        typeId: ''
       },
       importanceOptions: [1, 2, 3],
       calendarStatusOptions,
+      goodsLocationOptions: [],
+      selectTypeOptions: [],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
+        createTime: '',
+        expirationDate: 0,
+        price: '',
+        typeId: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
+        updateTime: '',
+        wzBar: '',
+        wzBelow: 0,
+        wzCoding: '',
+        wzDelete: 0,
+        wzElse: '',
+        wzId: 0,
+        wzName: '',
+        wzOn: 0,
+        wzState: 0
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
         update: 'Edit',
-        create: '新增-仓库区域信息'
+        create: '新增-物资信息'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        // type: [{ required: true, message: 'type is required', trigger: 'change' }],
+        // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
+        // title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      treeData: [],
+      isClearable: true,
+      valueId: null,
+      props: {
+        value: 'typeId',
+        label: 'typeName',
+        children: 'wzTypeList'
+      },
     }
   },
   created() {
-    this.getList()
+    this.goodsLocationOptions = []
+    this.selectGoodsLocation()
+    // this.getList()
   },
   methods: {
     getList() {
-      this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
+
+    },
+    selectGoodsLocation() {
+      this.listLoading = true
+      this.$store.dispatch('shelfManagement/getList', this.listQuery).then((result) => {
+        var select = result.仓库货架.list
+        this.listQuery.allocationId = select[0].storageId
+        this.$store.dispatch('goodsBrowse/selectOne', this.listQuery).then((result) => {
+          this.list = result.物资供应商.list
+          this.total = result.物资供应商.total
           this.listLoading = false
-        }, 1.5 * 1000)
+        })
+        for (let i = 0; i < select.length; i++) {
+          this.goodsLocationOptions.push({ key: select[i].storageId, display_name: select[i].storageName+"("+select[i].storageCoding+")" })
+        }
+        this.listLoading = false
+      })
+    },
+    selectType() {
+      this.$store.dispatch('typeManagement/getList', this.listQuery).then((result) => {
+        // eslint-disable-next-line no-unused-vars
+        var warehouse = result.data //wzTypeList
+        // for (let i = 0; i < warehouse.length; i++) {
+        //   this.selectTypeOptions.push({ key: warehouse[i].typeId, display_name: warehouse[i].typeName })
+        // }
+        this.treeData = warehouse
+        this.listLoading = false
+        console.log(result.仓库)
       })
     },
     handleFilter() {
@@ -265,13 +305,22 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        createBy: JSON.parse( localStorage.getItem("user")).userId,
+        createTime: '',
+        expirationDate: 0,
+        price: '',
+        typeId: '',
+        updateBy: JSON.parse( localStorage.getItem("user")).userId,
+        updateTime: '',
+        wzBar: '',
+        wzBelow: 0,
+        wzCoding: '',
+        wzDelete: 0,
+        wzElse: '',
+        wzId: 0,
+        wzName: '',
+        wzOn: 0,
+        wzState: 0
       }
     },
     handleCreate() {
@@ -285,24 +334,20 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          this.listLoading = true
+          this.$store.dispatch('goodsManagement/add', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.wzState = this.temp.wzState.toString()
+      this.temp.updateBy = JSON.parse( localStorage.getItem("user")).userId
+      this.valueId = this.temp.typeId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -312,18 +357,10 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          this.$store.dispatch('goodsManagement/update', this.temp).then((result) => {
             this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
+            this.handleFilter()
+            this.listLoading = false
           })
         }
       })

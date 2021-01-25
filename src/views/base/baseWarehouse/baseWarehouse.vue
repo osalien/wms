@@ -75,7 +75,7 @@
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.warehouseState }}</span>
+          <span>{{ row.warehouseState==0?"禁用":"已激活" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建人名称"  align="center">
@@ -96,7 +96,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="650px">
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="100px" >
@@ -104,8 +104,8 @@
           <el-input v-model="temp.warehouseName" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-radio v-model="temp.warehouseState" label="1">已激活</el-radio>
-          <el-radio v-model="temp.warehouseState"  label="0">未激活</el-radio>
+          <el-radio v-model="temp.warehouseState" label="1">激活</el-radio>
+          <el-radio v-model="temp.warehouseState"  label="0">禁用</el-radio>
         </el-form-item>
         <el-form-item label="编码" prop="warehouseCoding">
           <el-input v-model="temp.warehouseCoding" />
@@ -157,7 +157,7 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarStatusOptions = [
-  { key: '0', display_name: '未激活' },
+  { key: '0', display_name: '禁用' },
   { key: '1', display_name: '激活' }
 ]
 
@@ -192,7 +192,7 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 20,
+        pageSize: 10,
         warehouseName: '',
         warehouseState: ''
       },
@@ -248,6 +248,7 @@ export default {
       this.listLoading = true
       this.$store.dispatch('baseWarehouse/getList', this.listQuery).then((result) => {
         this.list = result.仓库.list
+        this.total = result.仓库.total
         this.listLoading = false
         console.log(result.仓库)
       })

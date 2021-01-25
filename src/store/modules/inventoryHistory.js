@@ -1,4 +1,4 @@
-import { getLists,add,update,queryById } from '@/api/goodsLocation'
+import { getLists,queryById } from '@/api/inventoryHistory'
 
 const state = {
 
@@ -19,24 +19,7 @@ const actions = {
       })
     })
   },
-  update({ commit }, params) {
-    return new Promise((resolve, reject) => {
-      update(params).then(result => {
-        resolve(result)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  },
-  add({ commit }, params) {
-    return new Promise((resolve, reject) => {
-      add(params).then(result => {
-        resolve(result)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  },
+
   queryById({ commit }, params) {
     return new Promise((resolve, reject) => {
       queryById(params).then(result => {

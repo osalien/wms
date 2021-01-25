@@ -1,7 +1,9 @@
 <template>
     <div class="login-container">
       <div class="login-all">
-      <div class="login-left" ></div>
+      <div class="login-left" >
+<!--        <img src="http://oss.osalien.com/hsyy1.png" width="100%" height="500px"/>-->
+      </div>
       <div class="login-right">
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
@@ -120,20 +122,22 @@ export default {
     const validateVerification = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请填写验证码'))
+      } else if (value != '8NYF5' && value != '8nyf5') {
+        callback(new Error('验证码错误'))
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        uesrName: '',
+        userName: '',
         password: '',
         verification: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
-        verification: [{ required: true, trigger: 'blur', validator: validateVerification }]
+        username: [{ required: true, trigger: 'change', validator: validateUsername }],
+        password: [{ required: true, trigger: 'change', validator: validatePassword }],
+        verification: [{ required: true, trigger: 'change', validator: validateVerification }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -142,7 +146,7 @@ export default {
       redirect: undefined,
       otherQuery: {},
       rememberChecked: false,
-      verificationPic: 'https://camo.githubusercontent.com/e9acc0d4254ef2e21856d5a1c5e4f7e79251aed35f0b34918d7673f343619386/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32332f6d736b6d61382e706e67'
+      verificationPic: 'http://oss.osalien.com/dbblog/20200929/26bb7b26e582465e9b09b7f9735348bb.png'
     }
   },
   watch: {
@@ -163,16 +167,14 @@ export default {
     const password = Base64.decode(this.getCookie('password'))
     // 如果存在赋值给表单，并且将记住密码勾选
     if (username) {
-      this.loginForm.username = username
+      this.loginForm.userName = username
       this.loginForm.password = password
       this.rememberChecked = true
     }
   },
   mounted() {
-    if (this.loginForm.username === '') {
+    if (this.loginForm.userName === '') {
       this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
     }
   },
   destroyed() {
@@ -196,7 +198,7 @@ export default {
     handleLogin() {
       var data = {
         // grant_type: 'password',
-        username: this.loginForm.uesrName,
+        username: this.loginForm.userName,
         password: this.loginForm.password,
         // ClientId:1,
       }
