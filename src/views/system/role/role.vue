@@ -3,12 +3,20 @@
     <div class="filter-container">
       <el-input
         v-model="listQuery.warehouseName"
-        placeholder="输入名称搜索"
+        placeholder="输入名称或描述搜索"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
+      <el-date-picker
+        style="width: 200px;display: inline-block;vertical-align: middle;margin-bottom: 10px;margin-left: 15px;"
+        v-model="value1"
+        type="daterange"
+        range-separator=":"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
       <el-select v-model="listQuery.warehouseState" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
         <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
@@ -22,82 +30,79 @@
         导出
       </el-button>
     </div>
+    <div style="float: left;width: 73%;">
 
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-      @sort-change="sortChange"
-    >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseId }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="编码"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseCoding}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="名称"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="地址"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehousePlace }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="仓管员"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.userName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="联系电话"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.usePhone }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="适用于角色" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.applyRoles }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="备注"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseElse}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseState==0?"禁用":"已激活" }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建人名称"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.createBy }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
-          <el-button type="primary" icon="el-icon-edit" size="mini" @click="handleUpdate(row)"></el-button>
-          <!--          <el-button v-if="row.status!='deleted'" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row,$index)"></el-button>-->
-        </template>
-      </el-table-column>
-    </el-table>
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>角色列表</span>
+        </div>
+        <el-table
+        :key="tableKey"
+        v-loading="listLoading"
+        :data="list"
+        border
+        fit
+        highlight-current-row
+        style="width: 100%;"
+        @sort-change="sortChange"
+      >
+        <el-table-column label="ID" prop="id" align="center" width="80">
+          <template slot-scope="{row}">
+            <span>{{ row.roleId }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="名称"  align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="角色权限"  align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.dataScope}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="角色级别"  align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.level }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="部门权限范围"  align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.scopeDepartment==0?"全部":"自定义" }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="描述"  align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.description }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
+          <template slot-scope="{row,$index}">
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="handleUpdate(row)"></el-button>
+            <el-button v-if="row.status!='deleted'" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row,$index)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
+        <pagination layout="total,prev, pager, next,sizes" v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getList" />
+      </el-card>
+    </div>
 
+    <div style="float: right;width: 25%;">
+
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>功能权限的分配</span>
+          <el-button class="filter-item" style="float: right;" size="mini" type="primary" icon="el-icon-check" @click="handleCreate">保存</el-button>
+        </div>
+        <el-tree
+          :props="props"
+          :data="menulist"
+          show-checkbox
+          @check-change="handleCheckChange">
+        </el-tree>
+      </el-card>
+    </div>
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="650px">
       <el-form  ref="dataForm" :rules="rules" :model="temp" :inline="true"  label-position="right" label-width="100px" >
         <el-form-item label="名称" prop="warehouseName">
@@ -190,6 +195,10 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
+      props:{
+        label: 'name',
+        children: 'menuList'
+      },
       listQuery: {
         pageNum: 1,
         pageSize: 10,
@@ -236,21 +245,28 @@ export default {
         usePhone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
         applyRoles: [{ required: true, message: '请选择角色', trigger: 'blur' }]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      menulist:[],
     }
   },
   created() {
     this.getList()
-    this.rolesSelectOption()
+    this.getMenuList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      this.$store.dispatch('baseWarehouse/getList', this.listQuery).then((result) => {
-        this.list = result.仓库.list
-        this.total = result.仓库.total
+      this.$store.dispatch('system/getListRole', this.listQuery).then((result) => {
+        this.list = result.data
+        this.total = result.data.length
         this.listLoading = false
-        console.log(result.仓库)
+      })
+    },
+    getMenuList() {
+      this.listLoading = true
+      this.$store.dispatch('system/getListMenu', this.listQuery).then((result) => {
+        this.menulist = result.data
+        this.listLoading = false
       })
     },
     rolesSelectOption() {

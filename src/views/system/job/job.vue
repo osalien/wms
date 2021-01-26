@@ -2,13 +2,21 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="listQuery.warehouseName"
-        placeholder="输入名称搜索"
+        v-model="listQuery.jobName"
+        placeholder="输入岗位名称搜索"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
+      <el-date-picker
+        style="width: 200px;display: inline-block;vertical-align: middle;margin-bottom: 10px;margin-left: 15px;"
+        v-model="value1"
+        type="daterange"
+        range-separator=":"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
       <el-select v-model="listQuery.warehouseState" placeholder="状态" clearable class="filter-item" style="width: 130px;margin-left: 15px">
         <el-option v-for="item in calendarStatusOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
@@ -33,54 +41,30 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
+
+      <el-table-column label="ID" prop="id" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.warehouseId }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="编码"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseCoding}}</span>
+          <span>{{ row.jobId }}</span>
         </template>
       </el-table-column>
       <el-table-column label="名称"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.warehouseName}}</span>
+          <span>{{ row.jobName}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="地址"  align="center">
+      <el-table-column label="所属部门"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.warehousePlace }}</span>
+          <span>{{ row.departmentName}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="仓管员"  align="center">
+      <el-table-column label="排序"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.userName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="联系电话"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.usePhone }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="适用于角色" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.applyRoles }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="备注"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.warehouseElse}}</span>
+          <span>{{ row.jobId}}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态"  align="center">
         <template slot-scope="{row}">
-          <span>{{ row.warehouseState==0?"禁用":"已激活" }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建人名称"  align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.createBy }}</span>
+          <span>{{ row.jobDelete!=0?"禁用":"启用" }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建时间"  align="center">
@@ -88,10 +72,10 @@
           <span>{{ row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" icon="el-icon-edit" size="mini" @click="handleUpdate(row)"></el-button>
-          <!--          <el-button v-if="row.status!='deleted'" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row,$index)"></el-button>-->
+                    <el-button v-if="row.status!='deleted'" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row,$index)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -241,16 +225,14 @@ export default {
   },
   created() {
     this.getList()
-    this.rolesSelectOption()
   },
   methods: {
     getList() {
       this.listLoading = true
-      this.$store.dispatch('baseWarehouse/getList', this.listQuery).then((result) => {
-        this.list = result.仓库.list
-        this.total = result.仓库.total
+      this.$store.dispatch('system/getListJob', this.listQuery).then((result) => {
+        this.list = result.岗位.list
+        this.total = result.岗位.total
         this.listLoading = false
-        console.log(result.仓库)
       })
     },
     rolesSelectOption() {

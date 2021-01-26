@@ -13,27 +13,27 @@ const systemRouter = {
   },
   children: [
     {
-      path: 'tinymce',
-      // component: () => import('@/views/components-demo/tinymce'),
-      name: 'TinymceDemo',
+      path: 'user',
+      component: () => import('@/views/system/user/user'),
+      name: 'user',
       meta: { title: '用戶管理' }
     },
     {
-      path: 'markdown',
-      // component: () => import('@/views/components-demo/markdown'),
-      name: 'MarkdownDemo',
+      path: 'role',
+      component: () => import('@/views/system/role/role'),
+      name: 'role',
       meta: { title: '角色与权限管理' }
     },
     {
-      path: 'json-editor',
-      // component: () => import('@/views/components-demo/json-editor'),
-      name: 'JsonEditorDemo',
+      path: 'dept',
+      component: () => import('@/views/system/dept/dept'),
+      name: 'dept',
       meta: { title: '部门管理' }
     },
     {
-      path: 'split-pane',
-      // component: () => import('@/views/components-demo/split-pane'),
-      name: 'SplitpaneDemo',
+      path: 'job',
+      component: () => import('@/views/system/job/job'),
+      name: 'job',
       meta: { title: '岗位与权限管理' }
     }
     // {
